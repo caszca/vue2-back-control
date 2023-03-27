@@ -1,10 +1,15 @@
 const fs = require("fs")
 const path = require("path")
-const { addArticle, getArticleDB, getArticleListDB, findArticleDB, deleteArticleDB } = require("@/database/article")
+const { addArticle, getArticleDB, getArticleListDB, findArticleDB,
+    deleteArticleDB, getAllArticleNumDB, getNewArticleNumDB, getCateArticleDB } = require("@/database/article")
+const format = require("@/dayjs")
 class articleController {
+
+    //添加文章
     async addArticle(ctx, next) {
         const data = ctx.request.body
-        if (data.state != "草稿" || data.state != "已发布") {
+
+        if (data.state != "草稿" && data.state != "已发布") {
             ctx.body = {
                 "code": 2,
                 "message": "\"state\" must be one of [草稿, 已发布]"
@@ -62,8 +67,12 @@ class articleController {
     //获取文章列表
     async getArticleList(ctx, next) {
         const value = ctx.request.query
+
         value.userId = ctx.request.userId
+        value.pagenum = String(Number(value.pagenum) - 1)
+
         const data = await getArticleListDB(value)
+
         ctx.body = {
             "code": 0,
             "message": "获取文章列表成功！",
@@ -88,6 +97,40 @@ class articleController {
         ctx.body = {
             "code": 0,
             "message": "删除成功！"
+        }
+    }
+
+    //获取所有文章数量
+    async getAllArticleNum(ctx, next) {
+        const { userId } = ctx.request
+        const data = await getAllArticleNumDB(userId)
+        ctx.body = {
+            code: "0",
+            message: "查询成功",
+            data
+        }
+    }
+
+    //获取日增文章数量
+    async getNewArticleNum(ctx, next) {
+        const { userId } = ctx.request
+        const date = format(Date.now())
+        const data = await getNewArticleNumDB(userId, date)
+        ctx.body = {
+            code: 0,
+            message: "查询成功",
+            data
+        }
+    }
+
+    //获取分类文章的数量
+    async getCateArticleNum(ctx, next) {
+        const { userId } = ctx.request
+        const data = await getCateArticleDB(userId)
+        ctx.body = {
+            code: '0',
+            message: "查询成功",
+            data
         }
     }
 }

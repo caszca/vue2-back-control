@@ -24,7 +24,6 @@ async function authToken(ctx, next) {
             return
         }
         ctx.request.userId = decoded.id
-        console.log(ctx.request.userId)
     })
     await next()
 }
