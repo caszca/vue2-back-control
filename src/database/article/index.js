@@ -107,7 +107,8 @@ class articleDB {
 
     //查找分类文章数量
     async getCateArticleDB(userId) {
-        const statement = "select cate_name,count(*) count from article a left join category c on a.cate_id=c.id group by a.cate_id;"
+        const statement = `select cate_name,count(*) count from article a left join category c on a.cate_id=c.id 
+        where author_id=? group by a.cate_id;`
         const [value] = await connection.execute(statement, [userId])
         return value
     }
