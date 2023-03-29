@@ -1,7 +1,8 @@
 const fs = require("fs")
 const path = require("path")
+const dayjs = require("dayjs")
 const { addArticle, getArticleDB, getArticleListDB, findArticleDB,
-    deleteArticleDB, getAllArticleNumDB, getNewArticleNumDB, getCateArticleDB } = require("@/database/article")
+    deleteArticleDB, getAllArticleNumDB, getNewArticleNumDB, getCateArticleDB, getMonthNumDB } = require("@/database/article")
 const format = require("@/dayjs")
 class articleController {
 
@@ -67,16 +68,21 @@ class articleController {
     //获取文章列表
     async getArticleList(ctx, next) {
         const value = ctx.request.query
+        const pagenum = Number(value.pagenum) - 1
+        const pagesize = Number(value.pagesize)
 
         value.userId = ctx.request.userId
         value.pagenum = String(Number(value.pagenum) - 1)
 
-        const data = await getArticleListDB(value)
-
+        let [data, { total }] = await getArticleListDB(value)
+        const num = (pagenum + 1) * pagesize
+        if (num > total && pagenum != 0) {
+            data = data.slice(num - total)
+        }
         ctx.body = {
             "code": 0,
             "message": "获取文章列表成功！",
-            "total": data.length,
+            total,
             data
         }
     }
@@ -129,6 +135,25 @@ class articleController {
         const data = await getCateArticleDB(userId)
         ctx.body = {
             code: '0',
+            message: "查询成功",
+            data
+        }
+    }
+
+    //获取不同分类前四月数量
+    async getMonthNum(ctx, next) {
+        const { userId } = ctx.request
+        const month = dayjs().format("YYYY-MM")
+
+        const month1 = dayjs(month).subtract(1, "month").format("YYYY-MM")
+        const month2 = dayjs(month1).subtract(1, "month").format("YYYY-MM")
+        const month3 = dayjs(month2).subtract(1, "month").format("YYYY-MM")
+        const month4 = dayjs(month3).subtract(1, "month").format("YYYY-MM")
+        const month5 = dayjs(month4).subtract(1, "month").format("YYYY-MM")
+        let data = await getMonthNumDB(userId, month, month1, month2, month3, month4, month5)
+
+        ctx.body = {
+            code: 0,
             message: "查询成功",
             data
         }

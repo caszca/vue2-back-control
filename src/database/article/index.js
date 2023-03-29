@@ -20,13 +20,19 @@ class articleDB {
 
     //得到文章列表
     async getArticleListDB({ cate_id, userId, state, pagesize, pagenum }) {
+
         if (state && cate_id) {
             const statement = `
         select a.id,title,pub_date,state,cate_name from article a left join category c 
         on a.cate_id=c.id where author_id=? and cate_id=? and state=? limit ? offset ?;
         `
+            const s1 = `
+        select count(*) total from article a left join category c 
+        on a.cate_id=c.id where author_id=? and cate_id=? and state=?;
+        `
+            const [v1] = await connection.execute(s1, [userId, cate_id, state])
             const [value] = await connection.execute(statement, [userId, cate_id, state, pagesize, pagenum])
-            return value
+            return [value, v1[0]]
         }
         else if (!state && !cate_id) {
 
@@ -34,24 +40,40 @@ class articleDB {
         select a.id,title,pub_date,state,cate_name from article a left join category c 
         on a.cate_id=c.id where author_id=? limit ? offset ?;
         `
+            const s1 = `
+        select count(*) total from article a left join category c 
+        on a.cate_id=c.id where author_id=? ;
+        `
+            const [v1] = await connection.execute(s1, [userId])
+
             const [value] = await connection.execute(statement, [userId, pagesize, pagenum])
-            return value
+            return [value, v1[0]]
         }
         else if (!state) {
             const statement = `
         select a.id,title,pub_date,state,cate_name from article a left join category c 
         on a.cate_id=c.id where author_id=? and cate_id=?  limit ? offset ?;
         `
+            const s1 = `
+        select count(*) total from article a left join category c 
+        on a.cate_id=c.id where author_id=? and cate_id=?;
+        `
+            const [v1] = await connection.execute(s1, [userId, cate_id])
             const [value] = await connection.execute(statement, [userId, cate_id, pagesize, pagenum])
-            return value
+            return [value, v1[0]]
         }
 
         const statement = `
         select a.id,title,pub_date,state,cate_name from article a left join category c 
         on a.cate_id=c.id where author_id=?  and state=? limit ? offset ?;
         `
+        const s1 = `
+        select count(*) total from article a left join category c 
+        on a.cate_id=c.id where author_id=? and state=?;
+        `
+        const [v1] = await connection.execute(s1, [userId, state])
         const [value] = await connection.execute(statement, [userId, state, pagesize, pagenum])
-        return value
+        return [value, v1[0]]
 
     }
 
@@ -88,6 +110,30 @@ class articleDB {
         const statement = "select cate_name,count(*) count from article a left join category c on a.cate_id=c.id group by a.cate_id;"
         const [value] = await connection.execute(statement, [userId])
         return value
+    }
+
+    async getMonthNumDB(userId, month, month1, month2, month3, month4, month5) {
+
+        const statement = `
+        select count(*) count from article a left join category c 
+        on a.cate_id=c.id where author_id=? and pub_date like ? ;
+        `
+        const [value] = await connection.execute(statement, [userId, month + "%"])
+        const [value1] = await connection.execute(statement, [userId, month1 + "%"])
+        const [value2] = await connection.execute(statement, [userId, month2 + "%"])
+        const [value3] = await connection.execute(statement, [userId, month3 + "%"])
+        const [value4] = await connection.execute(statement, [userId, month4 + "%"])
+        const [value5] = await connection.execute(statement, [userId, month5 + "%"])
+
+        const result = [
+            { date: month, count: value[0].count },
+            { date: month1, count: value1[0].count },
+            { date: month2, count: value2[0].count },
+            { date: month3, count: value3[0].count },
+            { date: month4, count: value4[0].count },
+            { date: month5, count: value5[0].count },
+        ]
+        return result
     }
 }
 
