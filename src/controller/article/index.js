@@ -68,17 +68,13 @@ class articleController {
     //获取文章列表
     async getArticleList(ctx, next) {
         const value = ctx.request.query
-        const pagenum = Number(value.pagenum) - 1
         const pagesize = Number(value.pagesize)
-
+        value.pagenum = String((Number(value.pagenum) - 1) * pagesize)
         value.userId = ctx.request.userId
-        value.pagenum = String(Number(value.pagenum) - 1)
 
         let [data, { total }] = await getArticleListDB(value)
-        const num = (pagenum + 1) * pagesize
-        if (num > total && pagenum != 0) {
-            data = data.slice(num - total)
-        }
+
+
         ctx.body = {
             "code": 0,
             "message": "获取文章列表成功！",

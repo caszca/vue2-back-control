@@ -2,7 +2,7 @@ const connection = require("../index")
 
 class articleDB {
     async addArticle({ title, cate_id, content, cover_img, state, author_id }) {
-
+        console.log(content)
         const statement = "insert into article (title,cate_id,content,cover_img,state,author_id) values (?,?,?,?,?,?);"
         await connection.execute(statement, [title, cate_id, content, cover_img, state, author_id])
     }
