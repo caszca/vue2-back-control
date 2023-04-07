@@ -2,11 +2,13 @@ const fs = require("fs")
 const path = require("path")
 const dayjs = require("dayjs")
 const { addArticle, getArticleDB, getArticleListDB, findArticleDB,
-    deleteArticleDB, getAllArticleNumDB, getNewArticleNumDB, getCateArticleDB, getMonthNumDB } = require("@/database/article")
+    deleteArticleDB, getAllArticleNumDB, getNewArticleNumDB,
+    getCateArticleDB, getMonthNumDB, getHumorNumDB } = require("@/database/article")
+const main = require("@/utils/humor")
 const format = require("@/dayjs")
 class articleController {
 
-    //添加文章
+    //添加日志
     async addArticle(ctx, next) {
         const data = ctx.request.body
 
@@ -19,15 +21,20 @@ class articleController {
         }
         data.author_id = ctx.request.userId
 
+        const data1 = await main(data.content.slice(0, 1000).replace(/<[^>]*>/g, '').trim())
+
+        const { positive_prob, neutral_prob, negative_prob } = JSON.parse(data1.data).result
+
+
         const { mimetype, buffer } = ctx.request.files[0]
         const suffix = Date.now() + "." + mimetype.replace("image/", "")
         data.cover_img = "/" + suffix
 
         fs.writeFileSync(path.resolve("uploads/", suffix), buffer)
-        await addArticle(data)
+        await addArticle(data, positive_prob, neutral_prob, negative_prob)
         ctx.body = {
             "code": 0,
-            "message": "发布文章成功！"
+            "message": "发布日志成功！"
         }
     }
 
@@ -37,7 +44,7 @@ class articleController {
         ctx.body = fs.createReadStream(`uploads/${imgName}`)
     }
 
-    //获取文章详情
+    //获取日志详情
     async getArticleInfo(ctx, next) {
 
         const { id } = ctx.request.query
@@ -59,13 +66,13 @@ class articleController {
         }
         ctx.body = {
             "code": 0,
-            "message": "获取文章成功！",
+            "message": "获取日志成功！",
             data
         }
 
     }
 
-    //获取文章列表
+    //获取日志列表
     async getArticleList(ctx, next) {
         const value = ctx.request.query
         const pagesize = Number(value.pagesize)
@@ -77,13 +84,13 @@ class articleController {
 
         ctx.body = {
             "code": 0,
-            "message": "获取文章列表成功！",
+            "message": "获取日志列表成功！",
             total,
             data
         }
     }
 
-    //删除文章
+    //删除日志
     async deleteArticle(ctx, next) {
         const { id } = ctx.request.query
         const { userId } = ctx.request
@@ -91,18 +98,18 @@ class articleController {
         if (!result) {
             ctx.body = {
                 "code": 1,
-                "message": "您要删除的文章不存在！"
+                "message": "您要删除的日志不存在！"
             }
             return
         }
         await deleteArticleDB(id, userId)
         ctx.body = {
             "code": 0,
-            "message": "删除成功！"
+            "message": "删除日志成功！"
         }
     }
 
-    //获取所有文章数量
+    //获取所有日志数量
     async getAllArticleNum(ctx, next) {
         const { userId } = ctx.request
         const data = await getAllArticleNumDB(userId)
@@ -113,7 +120,7 @@ class articleController {
         }
     }
 
-    //获取日增文章数量
+    //获取日增日志数量
     async getNewArticleNum(ctx, next) {
         const { userId } = ctx.request
         const date = format(Date.now())
@@ -125,7 +132,7 @@ class articleController {
         }
     }
 
-    //获取分类文章的数量
+    //获取分类日志的数量
     async getCateArticleNum(ctx, next) {
         const { userId } = ctx.request
         const data = await getCateArticleDB(userId)
@@ -148,6 +155,17 @@ class articleController {
         const month5 = dayjs(month4).subtract(1, "month").format("YYYY-MM")
         let data = await getMonthNumDB(userId, month, month1, month2, month3, month4, month5)
 
+        ctx.body = {
+            code: 0,
+            message: "查询成功",
+            data
+        }
+    }
+
+    //得不同心情日志数量
+    async getHumorNum(ctx, next) {
+        const { userId } = ctx.request
+        const data = await getHumorNumDB(userId)
         ctx.body = {
             code: 0,
             message: "查询成功",

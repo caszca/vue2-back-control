@@ -1,40 +1,40 @@
 const { addCateDB, getCateList, getCateInfoDB, updateCateInfoDB, deleteCateDB } = require("@/database/category")
 class cateController {
-    //添加文章分类
+    //添加日志分类
     async addCate(ctx, next) {
         const { cate_name, cate_alias } = ctx.request.body
         const { userId } = ctx.request
         await addCateDB(cate_name, cate_alias, userId)
         ctx.body = {
             "code": 0,
-            "message": "新增文章分类成功！"
+            "message": "新增日志分类成功！"
         }
     }
 
-    //获取文章分类
+    //获取日志分类
     async getCateList(ctx, next) {
         const { userId } = ctx.request
         const data = await getCateList(userId)
         ctx.body = {
             "code": 0,
-            "message": "获取文章分类列表成功！",
+            "message": "获取日志分类列表成功！",
             data
         }
     }
 
-    //获取文章分类详情
+    //获取日志分类详情
     async getCateInfo(ctx, next) {
         const { userId } = ctx.request
         const { id } = ctx.request.query
         const data = await getCateInfoDB(id, userId)
         ctx.body = {
             "code": 0,
-            "message": "获取文章分类成功！",
+            "message": "获取日志分类成功！",
             data
         }
     }
 
-    //更新文章分类详情
+    //更新日志分类详情
     async updateCateInfo(ctx, next) {
         const { userId } = ctx.request
         const { id, cate_name, cate_alias } = ctx.request.body
@@ -54,14 +54,14 @@ class cateController {
 
     }
 
-    //删除文章分类
+    //删除日志分类
     async deleteCate(ctx, next) {
         const { userId } = ctx.request
         const { id } = ctx.request.query
         await deleteCateDB(id, userId)
         ctx.body = {
             "code": 0,
-            "message": "删除文章分类成功！"
+            "message": "删除日志分类成功！"
         }
     }
 }

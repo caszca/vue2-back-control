@@ -2,7 +2,7 @@ const koaRouter = require("@koa/router")
 const multer = require('@koa/multer');
 const authToken = require("../middleware/users/authToken")
 const { addArticle, getArticleInfo, getArticleList, deleteArticle, getAllArticleNum,
-    getNewArticleNum, getCateArticleNum, getMonthNum } = require("../controller/article")
+    getNewArticleNum, getCateArticleNum, getMonthNum, getHumorNum } = require("../controller/article")
 
 const upload = multer();
 const articleRouter = new koaRouter({
@@ -17,4 +17,5 @@ articleRouter.get("/all", authToken, getAllArticleNum)
 articleRouter.get("/new", authToken, getNewArticleNum)
 articleRouter.get("/cateNum", authToken, getCateArticleNum)
 articleRouter.get("/monthNum", authToken, getMonthNum)
+articleRouter.get("/humor", authToken, getHumorNum)
 module.exports = articleRouter

@@ -1,4 +1,4 @@
-//文章分类
+//日志分类
 const koaRouter = require("@koa/router")
 const { addCate, getCateList, getCateInfo, updateCateInfo, deleteCate } = require("../controller/category")
 const checkCate = require("../middleware/category/checkCate")
