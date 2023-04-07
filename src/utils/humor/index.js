@@ -4,12 +4,12 @@ const { default: Client, GetSaChGeneralRequest } = require('@alicloud/alinlp2020
 const { Config } = require('@alicloud/openapi-client');
 
 async function main(text) {
-    
+
     let config = new Config({
         // 您的AccessKey ID
         accessKeyId: 'LTAI5tLnk5WgVHpzsjSehket',
         // 您的AccessKey Secret
-        accessKeySecret: '7ZMVZ2vBUhBOkGi81UnCjwoqWNkXQd',
+        accessKeySecret: '',
         // 访问的区域
         regionId: 'cn-hangzhou',
         endpoint: 'alinlp.cn-hangzhou.aliyuncs.com'
