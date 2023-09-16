@@ -1,11 +1,20 @@
 const connection = require("../index")
 
 class articleDB {
-    async addArticle({ title, cate_id, content, cover_img, state, author_id }, positive_prob, neutral_prob, negative_prob) {
-        console.log(content)
-        const statement = `insert into article (title,cate_id,content,cover_img,state,author_id,positive_prob, neutral_prob, negative_prob) 
-                            values (?,?,?,?,?,?,?,?,?);`
-        await connection.execute(statement, [title, cate_id, content, cover_img, state, author_id, positive_prob, neutral_prob, negative_prob])
+    async addArticleDB({ title, cate_id, content, cover_img, state, author_id }) {
+        //console.log(title, cate_id, content, cover_img, state, author_id, positive_prob, neutral_prob, negative_prob)
+        const statement = `insert into article (title,cate_id,content,cover_img,state,author_id) 
+                            values (?,?,?,?,?,?);`
+        await connection.execute(statement, [title, cate_id, content, cover_img, state, author_id])
+
+        const s = await connection.execute("select last_insert_id();")
+        return s[0][0]["last_insert_id()"]
+    }
+
+    //添加日志、分类映射关系表
+    async addArtCateMapDB(articleId, langCateId) {
+        const statement = "insert into articleLangMap (artId,langCateId) values (?,?)"
+        await connection.execute(statement, [articleId, langCateId])
     }
 
     //得到日志详情
@@ -24,8 +33,8 @@ class articleDB {
 
         if (state && cate_id) {
             const statement = `
-        select a.id,title,pub_date,state,cate_name,positive_prob,neutral_prob,negative_prob from article a left join category c 
-        on a.cate_id=c.id where author_id=? and cate_id=? and state=? limit ? offset ?;
+        select a.id,title,pub_date,state,cate_name from article a left join category c 
+        on a.cate_id=c.id where author_id=? and cate_id=? and state=? order by pub_date DESC  limit ? offset ?;
         `
             const s1 = `
         select count(*) total from article a left join category c 
@@ -38,8 +47,8 @@ class articleDB {
         else if (!state && !cate_id) {
 
             const statement = `
-        select a.id,title,pub_date,state,cate_name,positive_prob,neutral_prob,negative_prob from article a left join category c 
-        on a.cate_id=c.id where author_id=? limit ? offset ?;
+        select a.id,title,pub_date,state,cate_name from article a left join category c 
+        on a.cate_id=c.id where author_id=? order by pub_date DESC  limit ? offset ?;
         `
             const s1 = `
         select count(*) total from article a left join category c 
@@ -52,8 +61,8 @@ class articleDB {
         }
         else if (!state) {
             const statement = `
-        select a.id,title,pub_date,state,cate_name,positive_prob,neutral_prob,negative_prob from article a left join category c 
-        on a.cate_id=c.id where author_id=? and cate_id=?  limit ? offset ?;
+        select a.id,title,pub_date,state,cate_name from article a left join category c 
+        on a.cate_id=c.id where author_id=? and cate_id=? order by pub_date DESC   limit ? offset ?;
         `
             const s1 = `
         select count(*) total from article a left join category c 
@@ -65,8 +74,8 @@ class articleDB {
         }
 
         const statement = `
-        select a.id,title,pub_date,state,cate_name,positive_prob,neutral_prob,negative_prob from article a left join category c 
-        on a.cate_id=c.id where author_id=?  and state=? limit ? offset ?;
+        select a.id,title,pub_date,state,cate_name from article a left join category c 
+        on a.cate_id=c.id where author_id=?  and state=? order by pub_date DESC  limit ? offset ?;
         `
         const s1 = `
         select count(*) total from article a left join category c 

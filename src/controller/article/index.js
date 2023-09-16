@@ -1,8 +1,8 @@
 const fs = require("fs")
 const path = require("path")
 const dayjs = require("dayjs")
-const { addArticle, getArticleDB, getArticleListDB, findArticleDB,
-    deleteArticleDB, getAllArticleNumDB, getNewArticleNumDB,
+const { addArticleDB, getArticleDB, getArticleListDB, findArticleDB,
+    deleteArticleDB, getAllArticleNumDB, getNewArticleNumDB, addArtCateMapDB,
     getCateArticleDB, getMonthNumDB, getHumorNumDB } = require("@/database/article")
 const main = require("@/utils/humor")
 const format = require("@/dayjs")
@@ -12,6 +12,8 @@ class articleController {
     async addArticle(ctx, next) {
         const data = ctx.request.body
 
+        let lang_cate_id = data.lang_cate_id.split(",")
+  
         if (data.state != "草稿" && data.state != "已发布") {
             ctx.body = {
                 "code": 2,
@@ -19,20 +21,23 @@ class articleController {
             }
             return
         }
-        
+
         data.author_id = ctx.request.userId
 
-        const data1 = await main(data.content.slice(0, 1000).replace(/<[^>]*>/g, '').trim())
+        // const data1 = await main(data.content.slice(0, 1000).replace(/<[^>]*>/g, '').trim())
 
-        const { positive_prob, neutral_prob, negative_prob } = JSON.parse(data1.data).result
-
+        // const { positive_prob, neutral_prob, negative_prob } = JSON.parse(data1.data).result
 
         const { mimetype, buffer } = ctx.request.files[0]
         const suffix = Date.now() + "." + mimetype.replace("image/", "")
         data.cover_img = "/" + suffix
 
         fs.writeFileSync(path.resolve("uploads/", suffix), buffer)
-        await addArticle(data, positive_prob, neutral_prob, negative_prob)
+
+        let articleId = await addArticleDB(data)
+        lang_cate_id.forEach(async (item) => {
+            await addArtCateMapDB(articleId, Number(item))
+        })
         ctx.body = {
             "code": 0,
             "message": "发布日志成功！"
