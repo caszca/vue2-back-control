@@ -9,7 +9,7 @@ async function main(text) {
         // 您的AccessKey ID
         accessKeyId: 'LTAI5tLnk5WgVHpzsjSehket',
         // 您的AccessKey Secret
-        accessKeySecret: '',
+        accessKeySecret: '7ZMVZ2vBUhBOkGi81UnCjwoqWNkXQd',
         // 访问的区域
         regionId: 'cn-hangzhou',
         endpoint: 'alinlp.cn-hangzhou.aliyuncs.com'

@@ -1,3 +1,6 @@
+
+/*  genrsa -out private.key 1024
+> rsa -in private.key -pubout -out public.key */
 const jwt = require("jsonwebtoken")
 const fs = require("fs")
 const path = require("path")

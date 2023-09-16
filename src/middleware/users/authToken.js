@@ -14,6 +14,7 @@ async function authToken(ctx, next) {
         }
         return
     }
+    
     authorization = authorization.replace("Bearer ", "")
     jwt.verify(authorization, publicKey, function (err, decoded) {
         if (err) {

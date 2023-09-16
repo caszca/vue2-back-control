@@ -19,6 +19,7 @@ class articleController {
             }
             return
         }
+        
         data.author_id = ctx.request.userId
 
         const data1 = await main(data.content.slice(0, 1000).replace(/<[^>]*>/g, '').trim())
@@ -43,6 +44,7 @@ class articleController {
         const { imgName } = ctx.request.params
         ctx.body = fs.createReadStream(`uploads/${imgName}`)
     }
+
 
     //获取日志详情
     async getArticleInfo(ctx, next) {
